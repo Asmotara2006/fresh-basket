@@ -1,3 +1,4 @@
+sb_publishable_bwI8KDWr7QI0bVSQhbuhjg_jUpVg7_j
 const products=[const SUPABASE_URL = "https://ebrimmhnethptyyjkcsf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "ইয়াত নিজৰ Publishable Key বহুওৱা";
 {id:1,name:"Tomato",as:"বিলাহী",category:"Vegetables",catAs:"শাক-পাচলি",price:30,unit:"/ kg",emoji:"🍅"},
