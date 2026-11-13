@@ -1,6 +1,6 @@
 const SUPABASE_URL = "https://ebrimmhnethptyyjkcsf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_bwI8KDWr7QI0bVSQhbuhjg_jUpVg7_j";
-const products=[
+const demoProducts=[
 {id:1,name:"Tomato",as:"বিলাহী",category:"Vegetables",catAs:"শাক-পাচলি",price:30,unit:"/ kg",emoji:"🍅"},
 {id:2,name:"Potato",as:"আলু",category:"Vegetables",catAs:"শাক-পাচলি",price:25,unit:"/ kg",emoji:"🥔"},
 {id:3,name:"Onion",as:"পিঁয়াজ",category:"Vegetables",catAs:"শাক-পাচলি",price:35,unit:"/ kg",emoji:"🧅"},
@@ -10,7 +10,9 @@ const products=[
 {id:7,name:"Rice",as:"চাউল",category:"Groceries",catAs:"মুদী সামগ্ৰী",price:55,unit:"/ kg",emoji:"🍚"},
 {id:8,name:"Lentils",as:"দাইল",category:"Groceries",catAs:"মুদী সামগ্ৰী",price:95,unit:"/ kg",emoji:"🫘"}];
 const copy={en:{tag:"Freshness at your doorstep",eyebrow:"LOCAL • FRESH • TRUSTED",title:"Fresh picks for<br><em>happy homes.</em>",hero:"Shop fresh vegetables, fruits and daily essentials in Dhubri.",shop:"Shop now",benefits:["Fresh choices","Serving Dhubri","Cash on delivery"],browse:"GOOD FOOD, EVERY DAY",products:"Shop our products",categories:["All","Vegetables","Fruits","Greens","Groceries"],deliveryEyebrow:"FROM OUR MARKET TO YOUR HOME",deliveryTitle:"A fresher day starts here.",deliveryText:"Order your daily essentials with convenient Cash on Delivery.",footer:"Fresh groceries for Dhubri, Assam.",cart:"Cart",yourCart:"Your cart",total:"Total",checkout:"Delivery details",name:"Your name",phone:"Phone number",address:"Delivery address",place:"Place COD order",notice:"Demo preview: orders are not yet sent to a store owner.",empty:"Your cart is empty.",added:"Added to cart",items:"items"},as:{tag:"আপোনাৰ দুৱাৰমুখত সতেজতা",eyebrow:"স্থানীয় • সতেজ • বিশ্বাসযোগ্য",title:"সতেজ সামগ্ৰী,<br><em>সুখী পৰিয়াল।</em>",hero:"ধুবুৰীত সতেজ শাক-পাচলি, ফল-মূল আৰু দৈনন্দিন সামগ্ৰী কিনক।",shop:"কিনিবলৈ যাওক",benefits:["সতেজ সামগ্ৰী","ধুবুৰীত সেৱা","ঘৰত সামগ্ৰী পোৱাৰ পিছত মূল্য দিয়ক"],browse:"প্ৰতিদিনে ভাল খাদ্য",products:"আমাৰ সামগ্ৰী কিনক",categories:["সকলো","শাক-পাচলি","ফল-মূল","শাক","মুদী সামগ্ৰী"],deliveryEyebrow:"আমাৰ বজাৰৰ পৰা আপোনাৰ ঘৰলৈ",deliveryTitle:"সতেজ দিনৰ আৰম্ভণি ইয়াৰ পৰাই।",deliveryText:"Cash on Delivery-ৰ সুবিধাৰে দৈনন্দিন সামগ্ৰী অৰ্ডাৰ কৰক।",footer:"ধুবুৰী, অসমৰ বাবে সতেজ গেলামাল।",cart:"কাৰ্ট",yourCart:"আপোনাৰ কাৰ্ট",total:"মুঠ",checkout:"ডেলিভাৰীৰ তথ্য",name:"আপোনাৰ নাম",phone:"ফোন নম্বৰ",address:"ডেলিভাৰীৰ ঠিকনা",place:"Cash on Delivery অৰ্ডাৰ দিয়ক",notice:"ডেমো: অৰ্ডাৰ এতিয়াও দোকানৰ মালিকলৈ পঠিওৱা নহয়।",empty:"আপোনাৰ কাৰ্ট খালী।",added:"কাৰ্টত যোগ হ'ল",items:"বিধ"}};
+let products=[...demoProducts];
 let lang="en",active="All",cart={};
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const $=id=>document.getElementById(id),t=()=>copy[lang],fmt=n=>"₹"+n;
 function renderText(){const c=t();$("tagline").textContent=c.tag;$("heroEyebrow").textContent=c.eyebrow;$("heroTitle").innerHTML=c.title;$("heroText").textContent=c.hero;$("shopNow").innerHTML=c.shop+" <span>→</span>";$("benefit1").textContent=c.benefits[0];$("benefit2").textContent=c.benefits[1];$("benefit3").textContent=c.benefits[2];$("browse").textContent=c.browse;$("productTitle").textContent=c.products;$("deliveryEyebrow").textContent=c.deliveryEyebrow;$("deliveryTitle").textContent=c.deliveryTitle;$("deliveryText").textContent=c.deliveryText;$("footerText").textContent=c.footer;$("langBtn").textContent=lang==="en"?"অসমীয়া":"English";$("cartLabel").textContent=c.cart;$("cartTitle").textContent=c.yourCart;$("totalLabel").textContent=c.total;$("checkoutTitle").textContent=c.checkout;$("nameLabel").textContent=c.name;$("phoneLabel").textContent=c.phone;$("addressLabel").textContent=c.address;$("placeOrder").textContent=c.place;$("demoNotice").textContent=c.notice;renderFilters();renderProducts();renderCart()}
 function renderFilters(){const cats=t().categories;const keys=["All","Vegetables","Fruits","Greens","Groceries"];$("filters").innerHTML=keys.map((k,i)=>'<button class="filter '+(active===k?'active':'')+'" data-cat="'+k+'">'+cats[i]+'</button>').join("");document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{active=b.dataset.cat;renderFilters();renderProducts()})}
@@ -22,4 +24,31 @@ $("cartBtn").onclick=()=>{$("overlay").hidden=false;renderCart()};
 $("closeCart").onclick=()=>{$("overlay").hidden=true};
 $("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))$("overlay").hidden=true});
 $("orderForm").addEventListener("submit",e=>{e.preventDefault();if(!cartCount()){alert(t().empty);return}const order=products.filter(p=>cart[p.id]).map(p=>(lang==="en"?p.name:p.as)+" × "+cart[p.id]+" = "+fmt(p.price*cart[p.id])).join("\n");const total=products.reduce((s,p)=>s+p.price*(cart[p.id]||0),0);alert((lang==="en"?"Order preview":"অৰ্ডাৰৰ পূৰ্বদৰ্শন")+"\n\n"+order+"\n\n"+t().total+": "+fmt(total)+"\n\n"+t().notice);});
-$("year").textContent=new Date().getFullYear();renderText();
+async function loadProductsFromSupabase(){
+  const {data,error}=await supabaseClient
+    .from("products")
+    .select("id,name_en,name_as,price,image_url,category,stock")
+    .order("id");
+  if(error){
+    console.error("Fresh Basket product loading failed:",error.message);
+    $("productCount").textContent="Products could not be loaded";
+    return;
+  }
+  const emojiFor={Vegetables:"🥕",Fruits:"🍎",Greens:"🥬",Groceries:"🛒"};
+  const assameseCategory={Vegetables:"শাক-পাচলি",Fruits:"ফল-মূল",Greens:"শাক",Groceries:"মুদী সামগ্ৰী"};
+  products=(data||[]).map(p=>({
+    id:Number(p.id),
+    name:p.name_en,
+    as:p.name_as||p.name_en,
+    category:p.category||"Groceries",
+    catAs:assameseCategory[p.category]||"মুদী সামগ্ৰী",
+    price:Number(p.price),
+    unit:"/ kg",
+    emoji:emojiFor[p.category]||"🛒",
+    image_url:p.image_url,
+    stock:Number(p.stock||0)
+  }));
+  renderProducts();
+  renderCart();
+}
+$("year").textContent=new Date().getFullYear();renderText();loadProductsFromSupabase();
