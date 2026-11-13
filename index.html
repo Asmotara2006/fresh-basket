@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#16834a">
+  <meta name="description" content="Fresh Basket — fresh vegetables, fruits and groceries in Dhubri, Assam.">
+  <title>Fresh Basket | Dhubri</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="#"><span class="brand-icon">🥬</span><span>Fresh<span class="brand-green">Basket</span><small id="tagline">Freshness at your doorstep</small></span></a>
+    <div class="header-actions"><button id="langBtn" class="outline">অসমীয়া</button><button id="cartBtn" class="cart-button">🛒 <span id="cartLabel">Cart</span> <b id="cartCount">0</b></button></div>
+  </header>
+  <main>
+    <section class="hero"><div><span class="eyebrow" id="heroEyebrow">LOCAL • FRESH • TRUSTED</span><h1 id="heroTitle">Fresh picks for<br><em>happy homes.</em></h1><p id="heroText">Shop fresh vegetables, fruits and daily essentials in Dhubri.</p><a href="#products" class="primary-link" id="shopNow">Shop now <span>→</span></a></div><div class="hero-art" aria-label="Fresh vegetables illustration"><div class="sun"></div><div class="produce">🥑 🍅 🥦<br>🍊 🥕 🥬</div><span class="fresh-stamp">FRESH<br>DAILY</span></div></section>
+    <section class="benefits"><div>🌱 <span id="benefit1">Fresh choices</span></div><div>📍 <span id="benefit2">Serving Dhubri</span></div><div>💵 <span id="benefit3">Cash on delivery</span></div></section>
+    <section id="products" class="products-section"><div class="section-heading"><div><span class="eyebrow" id="browse">GOOD FOOD, EVERY DAY</span><h2 id="productTitle">Shop our products</h2></div><span class="product-count" id="productCount">8 items</span></div><div class="filters" id="filters"></div><div class="product-grid" id="productGrid"></div></section>
+    <section class="delivery-note"><div><span class="eyebrow" id="deliveryEyebrow">FROM OUR MARKET TO YOUR HOME</span><h2 id="deliveryTitle">A fresher day starts here.</h2><p id="deliveryText">Order your daily essentials with convenient Cash on Delivery.</p></div><div class="delivery-emoji">🧺</div></section>
+  </main>
+  <footer><a class="brand footer-brand" href="#">🥬 Fresh<span class="brand-green">Basket</span></a><p id="footerText">Fresh groceries for Dhubri, Assam.</p><small>© <span id="year"></span> Fresh Basket</small></footer>
+  <div class="overlay" id="overlay" hidden><section class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle"><div class="panel-head"><h2 id="cartTitle">Your cart</h2><button id="closeCart" class="close" aria-label="Close">×</button></div><div id="cartItems"></div><div class="cart-total"><span id="totalLabel">Total</span><strong id="cartTotal">₹0</strong></div><form id="orderForm"><h3 id="checkoutTitle">Delivery details</h3><label><span id="nameLabel">Your name</span><input id="customerName" required maxlength="70" placeholder="Name"></label><label><span id="phoneLabel">Phone number</span><input id="customerPhone" required inputmode="tel" pattern="[0-9 +()-]{8,18}" placeholder="Phone"></label><label><span id="addressLabel">Delivery address</span><textarea id="customerAddress" required maxlength="300" placeholder="Your address"></textarea></label><button class="checkout" type="submit" id="placeOrder">Place COD order</button><p class="fineprint" id="demoNotice">Demo preview: orders are not yet sent to a store owner.</p></form></section></div>
+  <script src="app.js"></script>
+</body></html>
