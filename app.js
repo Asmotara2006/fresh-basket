@@ -1,4 +1,5 @@
-const products=[
+const products=[const SUPABASE_URL = "https://ebrimmhnethptyyjkcsf.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "ইয়াত নিজৰ Publishable Key বহুওৱা";
 {id:1,name:"Tomato",as:"বিলাহী",category:"Vegetables",catAs:"শাক-পাচলি",price:30,unit:"/ kg",emoji:"🍅"},
 {id:2,name:"Potato",as:"আলু",category:"Vegetables",catAs:"শাক-পাচলি",price:25,unit:"/ kg",emoji:"🥔"},
 {id:3,name:"Onion",as:"পিঁয়াজ",category:"Vegetables",catAs:"শাক-পাচলি",price:35,unit:"/ kg",emoji:"🧅"},
