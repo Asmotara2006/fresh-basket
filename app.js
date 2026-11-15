@@ -149,12 +149,43 @@ async function showAdminState(){
     adminLoginArea.hidden=true;
     adminManageArea.hidden=false;
     await loadAdminProducts();
+    await loadAdminOrders();
   }else{
     await supabaseClient.auth.signOut();
     adminLoginArea.hidden=false;
     adminManageArea.hidden=true;
     adminMessage(adminAccessError || "Admin access could not be verified. Please try again.",true);
   }
+}
+async function loadAdminOrders(){
+  if(!approvedAdmin)return;
+  const list=$("adminOrderList");
+  list.textContent="Loading orders...";
+  const {data,error}=await supabaseClient
+    .from("customer_orders")
+    .select("id,customer_name,customer_phone,delivery_address,items,total,status,created_at")
+    .order("created_at",{ascending:false});
+  if(error){list.textContent="Could not load orders: "+error.message;return;}
+  list.innerHTML="";
+  if(!data||!data.length){list.textContent="No customer orders yet.";return;}
+  data.forEach(order=>{
+    const card=document.createElement("article");
+    card.className="admin-product-row";
+    const details=document.createElement("div");
+    const heading=document.createElement("strong");
+    heading.textContent="Order #"+order.id+" · "+(order.customer_name||"Customer");
+    const phone=document.createElement("small");
+    phone.textContent="Phone: "+(order.customer_phone||"");
+    const address=document.createElement("small");
+    address.textContent="Address: "+(order.delivery_address||"");
+    const itemText=document.createElement("small");
+    itemText.textContent="Items: "+(Array.isArray(order.items)?order.items.map(item=>(item.name_en||item.name_as||"Product")+" × "+item.quantity).join(", "):"");
+    const total=document.createElement("small");
+    total.textContent="Total: ₹"+order.total+" · Status: "+order.status+" · "+new Date(order.created_at).toLocaleString();
+    details.append(heading,phone,address,itemText,total);
+    card.appendChild(details);
+    list.appendChild(card);
+  });
 }
 async function loadAdminProducts(){
   if(!approvedAdmin)return;
