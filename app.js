@@ -53,14 +53,14 @@ $("orderForm").addEventListener("submit",async e=>{
   const submitButton=$("placeOrder");
   submitButton.disabled=true;
   submitButton.textContent=lang==="en"?"Placing order...":"অৰ্ডাৰ দিয়া হৈছে...";
-  const {data,error}=await supabaseClient.from("customer_orders").insert({
+  const {error}=await supabaseClient.from("customer_orders").insert({
     customer_name:customerName,
     customer_phone:customerPhone,
     delivery_address:deliveryAddress,
     items,
     total,
     status:"pending"
-  }).select("id").single();
+  });
   submitButton.disabled=false;
   submitButton.textContent=t().place;
   if(error){
@@ -68,7 +68,7 @@ $("orderForm").addEventListener("submit",async e=>{
     alert((lang==="en"?"Order could not be placed: ":"অৰ্ডাৰ দিব পৰা নগ'ল: ")+error.message);
     return;
   }
-  alert((lang==="en"?"Order placed successfully! Order number: #":"অৰ্ডাৰ সফলতাৰে দিয়া হ'ল! অৰ্ডাৰ নম্বৰ: #")+data.id);
+  alert(lang==="en"?"Order placed successfully! The store can now see your order in Admin.":"অৰ্ডাৰ সফলতাৰে দিয়া হ'ল! দোকানৰ Admin-ত অৰ্ডাৰটো দেখা যাব।");
   cart={};
   $("orderForm").reset();
   renderCart();
