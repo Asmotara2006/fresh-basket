@@ -41,7 +41,7 @@
           <label>Price (₹)<input id="adminPrice" type="number" min="0" step="0.01" required></label>
           <label>Stock<input id="adminStock" type="number" min="0" step="1" required></label>
           <label>Category<select id="adminCategory" required><option value="Vegetables">Vegetables</option><option value="Fruits">Fruits</option><option value="Greens">Greens</option><option value="Groceries">Groceries</option></select></label>
-          <label>Image URL (optional)<input id="adminImage" type="url" maxlength="500"></label>
+          <label>Product photo (optional)<input id="adminPhotoFile" type="file" accept="image/*"><small class="photo-help">Choose an image from your device (max 5 MB). You can also use an Image URL below.</small></label><label>Image URL (optional)<input id="adminImage" type="url" maxlength="500"></label>
           <div class="admin-form-actions"><button class="checkout" type="submit">Save product</button><button id="adminCancelEdit" class="outline" type="button">Clear</button></div>
         </form>
         <h3>Products</h3><div id="adminProductList"></div>
