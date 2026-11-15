@@ -60,8 +60,10 @@ const adminLoginArea = $("adminLoginArea");
 const adminManageArea = $("adminManageArea");
 let approvedAdmin = false;
 function adminMessage(message, isError=false){
-  const el = $("adminMessage");
-  if(el){el.textContent=message;el.style.color=isError?"#a32b2b":"#16834a";}
+  ["adminMessage","adminLoginMessage"].forEach(id=>{
+    const el=$(id);
+    if(el){el.textContent=message;el.style.color=isError?"#a32b2b":"#16834a";}
+  });
 }
 function clearAdminProductForm(){
   $("productAdminForm").reset();
@@ -83,11 +85,22 @@ async function checkAdminAccess(){
 }
 async function showAdminState(){
   const {data:{session}}=await supabaseClient.auth.getSession();
-  if(!session){adminLoginArea.hidden=false;adminManageArea.hidden=true;return;}
+  if(!session){
+    adminLoginArea.hidden=false;
+    adminManageArea.hidden=true;
+    return;
+  }
   const ok=await checkAdminAccess();
-  adminLoginArea.hidden=true;
-  adminManageArea.hidden=!ok;
-  if(ok) await loadAdminProducts();
+  if(ok){
+    adminLoginArea.hidden=true;
+    adminManageArea.hidden=false;
+    await loadAdminProducts();
+  }else{
+    await supabaseClient.auth.signOut();
+    adminLoginArea.hidden=false;
+    adminManageArea.hidden=true;
+    adminMessage("This account is not approved as an administrator. Please check the admin account.",true);
+  }
 }
 async function loadAdminProducts(){
   if(!approvedAdmin)return;
