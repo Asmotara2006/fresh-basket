@@ -181,8 +181,43 @@ async function loadAdminOrders(){
     const itemText=document.createElement("small");
     itemText.textContent="Items: "+(Array.isArray(order.items)?order.items.map(item=>(item.name_en||item.name_as||"Product")+" × "+item.quantity).join(", "):"");
     const total=document.createElement("small");
-    total.textContent="Total: ₹"+order.total+" · Status: "+order.status+" · "+new Date(order.created_at).toLocaleString();
-    details.append(heading,phone,address,itemText,total);
+    total.textContent="Total: ₹"+order.total+" · "+new Date(order.created_at).toLocaleString();
+    const statusLabel=document.createElement("label");
+    statusLabel.textContent="Order status: ";
+    const statusSelect=document.createElement("select");
+    statusSelect.setAttribute("aria-label","Status for order #"+order.id);
+    const allowedStatuses=[
+      ["pending","Pending"],
+      ["confirmed","Confirmed"],
+      ["preparing","Preparing"],
+      ["delivered","Delivered"],
+      ["cancelled","Cancelled"]
+    ];
+    allowedStatuses.forEach(([value,label])=>{
+      const option=document.createElement("option");
+      option.value=value;
+      option.textContent=label;
+      statusSelect.appendChild(option);
+    });
+    const currentStatus=allowedStatuses.some(([value])=>value===order.status)?order.status:"pending";
+    statusSelect.value=currentStatus;
+    statusSelect.addEventListener("change",async()=>{
+      if(!approvedAdmin){statusSelect.value=currentStatus;return;}
+      statusSelect.disabled=true;
+      const {error:updateError}=await supabaseClient
+        .from("customer_orders")
+        .update({status:statusSelect.value})
+        .eq("id",order.id);
+      if(updateError){
+        alert("Could not update order status: "+updateError.message);
+        statusSelect.value=currentStatus;
+      }else{
+        order.status=statusSelect.value;
+      }
+      statusSelect.disabled=false;
+    });
+    statusLabel.appendChild(statusSelect);
+    details.append(heading,phone,address,itemText,total,statusLabel);
     card.appendChild(details);
     list.appendChild(card);
   });
