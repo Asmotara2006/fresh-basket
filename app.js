@@ -59,6 +59,7 @@ const adminOverlay = $("adminOverlay");
 const adminLoginArea = $("adminLoginArea");
 const adminManageArea = $("adminManageArea");
 let approvedAdmin = false;
+let adminAccessError = "";
 function adminMessage(message, isError=false){
   ["adminMessage","adminLoginMessage"].forEach(id=>{
     const el=$(id);
@@ -74,12 +75,14 @@ function safeText(value){
   return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 }
 async function checkAdminAccess(){
-  const {data:{user}} = await supabaseClient.auth.getUser();
-  if(!user){approvedAdmin=false;return false;}
+  adminAccessError = "";
+  const {data:{user},error:userError} = await supabaseClient.auth.getUser();
+  if(userError){adminAccessError="Could not read signed-in user: "+userError.message;approvedAdmin=false;return false;}
+  if(!user){adminAccessError="No signed-in user found. Please log in again.";approvedAdmin=false;return false;}
   const {data,error}=await supabaseClient.from("admin_users").select("user_id").eq("user_id",user.id).maybeSingle();
-  if(error){adminMessage("Could not verify admin access: "+error.message,true);approvedAdmin=false;return false;}
+  if(error){adminAccessError="Admin lookup failed: "+error.message+" (signed in as "+(user.email||"unknown")+", ID "+user.id+")";approvedAdmin=false;return false;}
   approvedAdmin=!!data;
-  if(!approvedAdmin) adminMessage("This account is not approved as an administrator.",true);
+  if(!approvedAdmin) adminAccessError="No matching admin row for signed-in account "+(user.email||"unknown")+" (ID "+user.id+").";
   else $("adminSignedIn").textContent=user.email||"Admin";
   return approvedAdmin;
 }
@@ -99,7 +102,7 @@ async function showAdminState(){
     await supabaseClient.auth.signOut();
     adminLoginArea.hidden=false;
     adminManageArea.hidden=true;
-    adminMessage("This account is not approved as an administrator. Please check the admin account.",true);
+    adminMessage(adminAccessError || "Admin access could not be verified. Please try again.",true);
   }
 }
 async function loadAdminProducts(){
