@@ -52,3 +52,120 @@ async function loadProductsFromSupabase(){
   renderCart();
 }
 $("year").textContent=new Date().getFullYear();renderText();loadProductsFromSupabase();
+
+
+// Admin sign-in and product management. Access is checked against the private admin_users table.
+const adminOverlay = $("adminOverlay");
+const adminLoginArea = $("adminLoginArea");
+const adminManageArea = $("adminManageArea");
+let approvedAdmin = false;
+function adminMessage(message, isError=false){
+  const el = $("adminMessage");
+  if(el){el.textContent=message;el.style.color=isError?"#a32b2b":"#16834a";}
+}
+function clearAdminProductForm(){
+  $("productAdminForm").reset();
+  $("adminProductId").value="";
+  $("productFormHeading").textContent="Add product";
+}
+function safeText(value){
+  return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+async function checkAdminAccess(){
+  const {data:{user}} = await supabaseClient.auth.getUser();
+  if(!user){approvedAdmin=false;return false;}
+  const {data,error}=await supabaseClient.from("admin_users").select("user_id").eq("user_id",user.id).maybeSingle();
+  if(error){adminMessage("Could not verify admin access: "+error.message,true);approvedAdmin=false;return false;}
+  approvedAdmin=!!data;
+  if(!approvedAdmin) adminMessage("This account is not approved as an administrator.",true);
+  else $("adminSignedIn").textContent=user.email||"Admin";
+  return approvedAdmin;
+}
+async function showAdminState(){
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session){adminLoginArea.hidden=false;adminManageArea.hidden=true;return;}
+  const ok=await checkAdminAccess();
+  adminLoginArea.hidden=true;
+  adminManageArea.hidden=!ok;
+  if(ok) await loadAdminProducts();
+}
+async function loadAdminProducts(){
+  if(!approvedAdmin)return;
+  const {data,error}=await supabaseClient.from("products").select("id,name_en,name_as,price,stock,category,image_url").order("id");
+  if(error){adminMessage("Could not load products: "+error.message,true);return;}
+  const list=$("adminProductList");
+  list.innerHTML="";
+  (data||[]).forEach(p=>{
+    const row=document.createElement("div");
+    row.className="admin-product-row";
+    row.innerHTML='<div><strong>'+safeText(p.name_en)+'</strong><small>'+safeText(p.category)+' · ₹'+safeText(p.price)+' · Stock: '+safeText(p.stock)+'</small></div><div class="admin-row-actions"><button type="button" data-edit="'+p.id+'">Edit</button><button type="button" class="delete-product" data-delete="'+p.id+'">Delete</button></div>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll("[data-edit]").forEach(btn=>btn.addEventListener("click",()=>{
+    const p=data.find(item=>String(item.id)===btn.dataset.edit);
+    if(!p)return;
+    $("adminProductId").value=p.id;
+    $("adminNameEn").value=p.name_en||"";
+    $("adminNameAs").value=p.name_as||"";
+    $("adminPrice").value=p.price;
+    $("adminStock").value=p.stock??0;
+    $("adminCategory").value=p.category||"Groceries";
+    $("adminImage").value=p.image_url||"";
+    $("productFormHeading").textContent="Edit product";
+    $("productAdminForm").scrollIntoView({behavior:"smooth",block:"start"});
+  }));
+  list.querySelectorAll("[data-delete]").forEach(btn=>btn.addEventListener("click",async()=>{
+    if(!approvedAdmin||!confirm("Delete this product?"))return;
+    const {error}=await supabaseClient.from("products").delete().eq("id",btn.dataset.delete);
+    if(error){adminMessage("Delete failed: "+error.message,true);return;}
+    adminMessage("Product deleted.");
+    await loadProductsFromSupabase();
+    await loadAdminProducts();
+  }));
+}
+$("adminBtn").addEventListener("click",async()=>{
+  adminOverlay.hidden=false;
+  adminMessage("");
+  await showAdminState();
+});
+$("adminClose").addEventListener("click",()=>{adminOverlay.hidden=true;});
+adminOverlay.addEventListener("click",e=>{if(e.target===adminOverlay)adminOverlay.hidden=true;});
+$("adminLoginForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const email=$("adminEmail").value.trim();
+  const password=$("adminPassword").value;
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+  $("adminPassword").value="";
+  if(error){adminMessage("Login failed. Check your email and password.",true);return;}
+  await showAdminState();
+});
+$("adminLogout").addEventListener("click",async()=>{
+  await supabaseClient.auth.signOut();
+  approvedAdmin=false;
+  adminManageArea.hidden=true;
+  adminLoginArea.hidden=false;
+  clearAdminProductForm();
+  adminMessage("Logged out.");
+});
+$("adminCancelEdit").addEventListener("click",clearAdminProductForm);
+$("productAdminForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!approvedAdmin){adminMessage("Admin access required.",true);return;}
+  const payload={
+    name_en:$("adminNameEn").value.trim(),
+    name_as:$("adminNameAs").value.trim()||null,
+    price:Number($("adminPrice").value),
+    stock:Number($("adminStock").value),
+    category:$("adminCategory").value,
+    image_url:$("adminImage").value.trim()||null
+  };
+  const id=$("adminProductId").value;
+  const result=id
+    ? await supabaseClient.from("products").update(payload).eq("id",id)
+    : await supabaseClient.from("products").insert(payload);
+  if(result.error){adminMessage("Save failed: "+result.error.message,true);return;}
+  adminMessage(id?"Product updated.":"Product added.");
+  clearAdminProductForm();
+  await loadProductsFromSupabase();
+  await loadAdminProducts();
+});
