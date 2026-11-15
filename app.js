@@ -152,7 +152,7 @@ $("adminLoginForm").addEventListener("submit",async e=>{
   const password=$("adminPassword").value;
   const {error}=await supabaseClient.auth.signInWithPassword({email,password});
   $("adminPassword").value="";
-  if(error){adminMessage("Login failed. Check your email and password.",true);return;}
+  if(error){adminMessage("Login error: "+error.message,true);return;}
   await showAdminState();
 });
 $("adminLogout").addEventListener("click",async()=>{
