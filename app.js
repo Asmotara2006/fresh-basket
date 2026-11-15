@@ -33,7 +33,47 @@ $("langBtn").onclick=()=>{lang=lang==="en"?"as":"en";renderText()};
 $("cartBtn").onclick=()=>{$("overlay").hidden=false;renderCart()};
 $("closeCart").onclick=()=>{$("overlay").hidden=true};
 $("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))$("overlay").hidden=true});
-$("orderForm").addEventListener("submit",e=>{e.preventDefault();if(!cartCount()){alert(t().empty);return}const order=products.filter(p=>cart[p.id]).map(p=>(lang==="en"?p.name:p.as)+" × "+cart[p.id]+" = "+fmt(p.price*cart[p.id])).join("\n");const total=products.reduce((s,p)=>s+p.price*(cart[p.id]||0),0);alert((lang==="en"?"Order preview":"অৰ্ডাৰৰ পূৰ্বদৰ্শন")+"\n\n"+order+"\n\n"+t().total+": "+fmt(total)+"\n\n"+t().notice);});
+$("orderForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!cartCount()){alert(t().empty);return;}
+  const customerName=$("customerName").value.trim();
+  const customerPhone=$("customerPhone").value.trim();
+  const deliveryAddress=$("customerAddress").value.trim();
+  if(!customerName||!customerPhone||!deliveryAddress){alert(lang==="en"?"Please complete all delivery details.":"অনুগ্ৰহ কৰি ডেলিভাৰীৰ সকলো তথ্য পূৰণ কৰক।");return;}
+  const selected=products.filter(p=>cart[p.id]);
+  const items=selected.map(p=>({
+    product_id:p.id,
+    name_en:p.name,
+    name_as:p.as,
+    quantity:cart[p.id],
+    unit_price:p.price,
+    line_total:p.price*cart[p.id]
+  }));
+  const total=items.reduce((sum,item)=>sum+item.line_total,0);
+  const submitButton=$("placeOrder");
+  submitButton.disabled=true;
+  submitButton.textContent=lang==="en"?"Placing order...":"অৰ্ডাৰ দিয়া হৈছে...";
+  const {data,error}=await supabaseClient.from("customer_orders").insert({
+    customer_name:customerName,
+    customer_phone:customerPhone,
+    delivery_address:deliveryAddress,
+    items,
+    total,
+    status:"pending"
+  }).select("id").single();
+  submitButton.disabled=false;
+  submitButton.textContent=t().place;
+  if(error){
+    console.error("Order submission failed:",error.message);
+    alert((lang==="en"?"Order could not be placed: ":"অৰ্ডাৰ দিব পৰা নগ'ল: ")+error.message);
+    return;
+  }
+  alert((lang==="en"?"Order placed successfully! Order number: #":"অৰ্ডাৰ সফলতাৰে দিয়া হ'ল! অৰ্ডাৰ নম্বৰ: #")+data.id);
+  cart={};
+  $("orderForm").reset();
+  renderCart();
+  $("overlay").hidden=true;
+});
 async function loadProductsFromSupabase(){
   const {data,error}=await supabaseClient
     .from("products")
