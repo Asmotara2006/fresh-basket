@@ -19,16 +19,22 @@ function renderFilters(){const cats=t().categories;const keys=["All","Vegetables
 function renderProducts(){
   const list=products.filter(p=>active==="All"||p.category===active);
   $("productCount").textContent=list.length+" "+t().items;
-  $("productGrid").innerHTML=list.map(p=>'<article class="product-card"><div class="product-art">'+(p.image_url?'<img src="'+safeText(p.image_url)+'" alt="'+safeText(p.name)+'">':p.emoji)+'</div><div class="product-info"><h3>'+(lang==="en"?p.name:p.as)+'</h3><span class="unit">'+(lang==="en"?p.unit:p.unit.replace("kg","কেজি").replace("bunch","আটি").replace("dozen","ডজন"))+'</span><div class="product-bottom"><span class="price">'+fmt(p.price)+'</span><button class="add" data-add="'+p.id+'">+ '+(lang==="en"?"Add":"যোগ")+'</button></div></div></article>').join("");
+  $("productGrid").innerHTML=list.map(p=>{
+    const outOfStock=Number(p.stock??0)<=0;
+    const label=outOfStock?(lang==="en"?"Out of Stock":"ষ্টক শেষ"):(lang==="en"?"Add":"যোগ");
+    return '<article class="product-card"><div class="product-art">'+(p.image_url?'<img src="'+safeText(p.image_url)+'" alt="'+safeText(p.name)+'">':p.emoji)+'</div><div class="product-info"><h3>'+(lang==="en"?p.name:p.as)+'</h3><span class="unit">'+(lang==="en"?p.unit:p.unit.replace("kg","কেজি").replace("bunch","আটি").replace("dozen","ডজন"))+'</span><div class="product-bottom"><span class="price">'+fmt(p.price)+'</span><button class="add" data-add="'+p.id+'" '+(outOfStock?'disabled aria-disabled="true"':'')+'>'+ (outOfStock?'':'+ ')+label+'</button></div></div></article>';
+  }).join("");
   document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{
     const id=+b.dataset.add;
+    const product=products.find(p=>p.id===id);
+    if(!product||cart[id]>=Number(product.stock??0))return;
     cart[id]=(cart[id]||0)+1;
     renderCart();
     $("cartCount").textContent=cartCount();
   });
 }
 function cartCount(){return Object.values(cart).reduce((a,b)=>a+b,0)}
-function renderCart(){const entries=products.filter(p=>cart[p.id]);$("cartCount").textContent=cartCount();$("cartItems").innerHTML=entries.length?entries.map(p=>'<div class="cart-row"><span class="cart-emoji">'+p.emoji+'</span><div class="cart-row-info"><strong>'+(lang==="en"?p.name:p.as)+'</strong><small>'+fmt(p.price)+' × '+cart[p.id]+'</small></div><div class="qty"><button data-minus="'+p.id+'">−</button><b>'+cart[p.id]+'</b><button data-plus="'+p.id+'">+</button></div></div>').join(""):'<p class="empty">'+t().empty+'</p>';const total=entries.reduce((s,p)=>s+p.price*cart[p.id],0);$("cartTotal").textContent=fmt(total);document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{const id=+b.dataset.minus;cart[id]--;if(cart[id]<=0)delete cart[id];renderCart()});document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{const id=+b.dataset.plus;cart[id]++;renderCart()})}
+function renderCart(){const entries=products.filter(p=>cart[p.id]);$("cartCount").textContent=cartCount();$("cartItems").innerHTML=entries.length?entries.map(p=>'<div class="cart-row"><span class="cart-emoji">'+p.emoji+'</span><div class="cart-row-info"><strong>'+(lang==="en"?p.name:p.as)+'</strong><small>'+fmt(p.price)+' × '+cart[p.id]+'</small></div><div class="qty"><button data-minus="'+p.id+'">−</button><b>'+cart[p.id]+'</b><button data-plus="'+p.id+'">+</button></div></div>').join(""):'<p class="empty">'+t().empty+'</p>';const total=entries.reduce((s,p)=>s+p.price*cart[p.id],0);$("cartTotal").textContent=fmt(total);document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{const id=+b.dataset.minus;cart[id]--;if(cart[id]<=0)delete cart[id];renderCart()});document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{const id=+b.dataset.plus;const product=products.find(p=>p.id===id);if(!product||cart[id]>=Number(product.stock??0))return;cart[id]++;renderCart()})}
 $("langBtn").onclick=()=>{lang=lang==="en"?"as":"en";renderText()};
 $("cartBtn").onclick=()=>{$("overlay").hidden=false;renderCart()};
 $("closeCart").onclick=()=>{$("overlay").hidden=true};
@@ -73,6 +79,7 @@ $("orderForm").addEventListener("submit",async e=>{
   $("orderForm").reset();
   renderCart();
   $("overlay").hidden=true;
+  await loadProductsFromSupabase();
 });
 async function loadProductsFromSupabase(){
   const {data,error}=await supabaseClient
