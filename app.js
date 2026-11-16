@@ -217,6 +217,32 @@ async function loadAdminOrders(){
       statusSelect.disabled=false;
     });
     statusLabel.appendChild(statusSelect);
+        const whatsappBtn = document.createElement("button");
+    whatsappBtn.type = "button";
+    whatsappBtn.textContent = "WhatsApp";
+    whatsappBtn.addEventListener("click", () => {
+      const items = Array.isArray(order.items)
+        ? order.items.map(item =>
+            (item.name_en || item.name_as || "Product") +
+            " × " + item.quantity
+          ).join(", ")
+        : "Not available";
+
+      const message =
+        "Fresh Basket - New Order #" + order.id +
+        "\nCustomer: " + (order.customer_name || "") +
+        "\nPhone: " + (order.customer_phone || "") +
+        "\nAddress: " + (order.delivery_address || "") +
+        "\nItems: " + items +
+        "\nTotal: ₹" + order.total +
+        "\nStatus: " + order.status;
+
+      window.open(
+        "https://wa.me/?text=" + encodeURIComponent(message),
+        "_blank"
+      );
+    });
+    details.appendChild(whatsappBtn);
     details.append(heading,phone,address,itemText,total,statusLabel);
     card.appendChild(details);
     list.appendChild(card);
