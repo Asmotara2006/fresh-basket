@@ -156,7 +156,7 @@ async function showAdminState(){
     adminLoginArea.hidden=true;
     adminManageArea.hidden=false;
     await loadAdminProducts();
-    await loadAdminOrders();
+    await loadAdminSalesReport();
   }else{
     await supabaseClient.auth.signOut();
     adminLoginArea.hidden=false;
@@ -254,6 +254,53 @@ async function loadAdminOrders(){
     card.appendChild(details);
     list.appendChild(card);
   });
+}
+
+async function loadAdminSalesReport(){
+  const report = $("adminSalesReport");
+  if(!approvedAdmin || !report) return;
+
+  report.textContent = "Loading sales report...";
+
+  const {data,error} = await supabaseClient
+    .from("customer_orders")
+    .select("total,status");
+
+  if(error){
+    report.textContent = "Could not load sales report: " + error.message;
+    return;
+  }
+
+  const orders = data || [];
+  const valid = orders.filter(o => o.status !== "cancelled");
+  const delivered = orders.filter(o => o.status === "delivered");
+
+  const orderValue = valid.reduce(
+    (sum,o) => sum + Number(o.total || 0), 0
+  );
+
+  const deliveredSales = delivered.reduce(
+    (sum,o) => sum + Number(o.total || 0), 0
+  );
+
+  const pending = orders.filter(
+    o => o.status === "pending"
+  ).length;
+
+  report.innerHTML = `
+    <div class="admin-product-row">
+      <strong>Total Orders: ${orders.length}</strong>
+    </div>
+    <div class="admin-product-row">
+      <strong>Pending Orders: ${pending}</strong>
+    </div>
+    <div class="admin-product-row">
+      <strong>Total Order Value: ₹${orderValue.toFixed(2)}</strong>
+    </div>
+    <div class="admin-product-row">
+      <strong>Delivered Sales: ₹${deliveredSales.toFixed(2)}</strong>
+    </div>
+  `;
 }
 async function loadAdminProducts(){
   if(!approvedAdmin)return;
