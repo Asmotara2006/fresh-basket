@@ -415,6 +415,9 @@ async function updateCustomerAuthButton(session) {
     btn.textContent = session ? "Sign Out" : "Sign In / Sign Up";
   }
 
+  const profileBtn = $("myProfileBtn");
+  if (profileBtn) profileBtn.hidden = !session;
+
   const adminBtn = $("adminBtn");
   if (!adminBtn) return;
 
@@ -604,4 +607,42 @@ $("myOrdersClose").addEventListener("click", () => {
 
 $("myOrdersOverlay").addEventListener("click", event => {
   if (event.target === $("myOrdersOverlay")) $("myOrdersOverlay").hidden = true;
+});
+
+$("myProfileBtn").addEventListener("click", async () => {
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) {
+    alert("Please sign in to view your profile.");
+    return;
+  }
+  $("myProfileEmail").textContent = user.email || "";
+  $("myProfileName").value = user.user_metadata?.full_name || "";
+  $("myProfileMessage").textContent = "";
+  $("myProfileOverlay").hidden = false;
+});
+
+$("myProfileClose").addEventListener("click", () => {
+  $("myProfileOverlay").hidden = true;
+});
+
+$("myProfileOverlay").addEventListener("click", event => {
+  if (event.target === $("myProfileOverlay")) $("myProfileOverlay").hidden = true;
+});
+
+$("myProfileSave").addEventListener("click", async () => {
+  const name = $("myProfileName").value.trim();
+  const message = $("myProfileMessage");
+  if (!name) {
+    message.textContent = "Please enter your name.";
+    return;
+  }
+  message.textContent = "Saving...";
+  const { error } = await supabaseClient.auth.updateUser({
+    data: { full_name: name }
+  });
+  if (error) {
+    message.textContent = "Could not save profile: " + error.message;
+    return;
+  }
+  message.textContent = "Profile updated successfully.";
 });
