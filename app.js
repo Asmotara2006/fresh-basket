@@ -475,8 +475,9 @@ $("customerAuthSubmit").addEventListener("click", async () => {
       email,
       password,
       options: {
-        data: { full_name: name }
-      }
+  data: { full_name: name },
+  emailRedirectTo: "https://asmotara2006.github.io/fresh-basket/"
+}
     });
   } else {
     result = await supabaseClient.auth.signInWithPassword({
