@@ -155,7 +155,8 @@ async function showAdminState(){
   if(ok){
     adminLoginArea.hidden=true;
     adminManageArea.hidden=false;
-    await loadAdminProducts();
+       await loadAdminProducts();
+    await loadAdminOrders();
     await loadAdminSalesReport();
   }else{
     await supabaseClient.auth.signOut();
