@@ -59,7 +59,9 @@ $("orderForm").addEventListener("submit",async e=>{
   const submitButton=$("placeOrder");
   submitButton.disabled=true;
   submitButton.textContent=lang==="en"?"Placing order...":"অৰ্ডাৰ দিয়া হৈছে...";
+  const {data:{session:customerSession}} = await supabaseClient.auth.getSession();
   const {error}=await supabaseClient.from("customer_orders").insert({
+    user_id:customerSession?.user?.id || null,
     customer_name:customerName,
     customer_phone:customerPhone,
     delivery_address:deliveryAddress,
@@ -507,4 +509,82 @@ supabaseClient.auth.getSession().then(({ data }) => {
 
 supabaseClient.auth.onAuthStateChange((_event, session) => {
   updateCustomerAuthButton(session);
+});
+
+async function loadMyOrders() {
+  const list = $("myOrdersList");
+  list.textContent = "Loading your orders...";
+  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+  if (userError || !user) {
+    list.textContent = "Please sign in to view your orders.";
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("customer_orders")
+    .select("id,items,total,status,created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    list.textContent = "Could not load orders: " + error.message;
+    return;
+  }
+
+  list.innerHTML = "";
+  if (!data || data.length === 0) {
+    list.textContent = "You have no orders yet.";
+    return;
+  }
+
+  data.forEach(order => {
+    const card = document.createElement("article");
+    card.className = "admin-product-row";
+
+    const heading = document.createElement("strong");
+    heading.textContent = "Order #" + order.id;
+
+    const itemLine = document.createElement("p");
+    itemLine.textContent = Array.isArray(order.items)
+      ? order.items.map(item => (item.name_en || item.name_as || "Product") + " × " + item.quantity).join(", ")
+      : "Items not available";
+
+    const total = document.createElement("p");
+    total.textContent = "Total: ₹" + Number(order.total || 0).toFixed(2);
+
+    const status = document.createElement("p");
+    const statusNames = {
+      pending: "Pending",
+      confirmed: "Confirmed",
+      preparing: "Preparing",
+      delivered: "Delivered",
+      cancelled: "Cancelled"
+    };
+    status.textContent = "Status: " + (statusNames[order.status] || order.status || "Pending");
+
+    const date = document.createElement("small");
+    date.textContent = order.created_at ? new Date(order.created_at).toLocaleString() : "";
+
+    card.append(heading, itemLine, total, status, date);
+    list.appendChild(card);
+  });
+}
+
+$("myOrdersBtn").addEventListener("click", async () => {
+  $("myOrdersOverlay").hidden = false;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    $("myOrdersList").textContent = "Please sign in first. Close this panel and use Sign In / Sign Up.";
+    return;
+  }
+  await loadMyOrders();
+});
+
+$("myOrdersClose").addEventListener("click", () => {
+  $("myOrdersOverlay").hidden = true;
+});
+
+$("myOrdersOverlay").addEventListener("click", event => {
+  if (event.target === $("myOrdersOverlay")) $("myOrdersOverlay").hidden = true;
 });
