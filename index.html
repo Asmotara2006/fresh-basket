@@ -8,7 +8,12 @@
 </head>
 <body>
   <header class="topbar"><a class="brand" href="#"><span class="brand-icon">🥬</span><span>Fresh<span class="brand-green">Basket</span><small id="tagline">Freshness at your doorstep</small></span></a>
-    <div class="header-actions"><button id="langBtn" class="outline">অসমীয়া</button><button id="adminBtn" class="outline" type="button">Admin</button><button id="cartBtn" class="cart-button">🛒 <span id="cartLabel">Cart</span> <b id="cartCount">0</b></button></div>
+   <div class="header-actions">
+  <button id="langBtn" class="outline">অসমীয়া</button>
+  <button id="customerAuthBtn" class="outline" type="button">Sign In / Sign Up</button>
+  <button id="adminBtn" class="outline" type="button">Admin</button>
+  <button id="cartBtn" class="cart-button">🛒 <span id="cartLabel">Cart</span> <b id="cartCount">0</b></button>
+</div> 
   </header>
   <main>
     <section class="hero"><div><span class="eyebrow" id="heroEyebrow">LOCAL • FRESH • TRUSTED</span><h1 id="heroTitle">Fresh picks for<br><em>happy homes.</em></h1><p id="heroText">Shop fresh vegetables, fruits and daily essentials in Dhubri.</p><a href="#products" class="primary-link" id="shopNow">Shop now <span>→</span></a></div><div class="hero-art" aria-label="Fresh vegetables illustration"><div class="sun"></div><div class="produce">🥑 🍅 🥦<br>🍊 🥕 🥬</div><span class="fresh-stamp">FRESH<br>DAILY</span></div></section>
@@ -57,6 +62,34 @@
       </div>
     </section>
   </div>
+  <div class="admin-overlay" id="customerAuthOverlay" hidden>
+  <section class="admin-panel">
+    <div class="panel-head">
+      <h2>Customer Account</h2>
+      <button id="customerAuthClose" class="close" type="button">×</button>
+    </div>
+
+    <div id="customerAuthForm">
+      <h3 id="customerAuthTitle">Sign Up</h3>
+
+      <label>Name
+        <input id="customerAuthName" type="text" maxlength="70">
+      </label>
+
+      <label>Email
+        <input id="customerAuthEmail" type="email" required>
+      </label>
+
+      <label>Password
+        <input id="customerAuthPassword" type="password" minlength="6" required>
+      </label>
+
+      <button id="customerAuthSubmit" class="checkout" type="button">Sign Up</button>
+      <button id="customerAuthSwitch" class="outline" type="button">Already have an account? Sign In</button>
+      <p id="customerAuthMessage" role="status"></p>
+    </div>
+  </section>
+</div>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body></html>
