@@ -258,6 +258,8 @@ async function loadAdminOrders(){
 }
 
 async function loadAdminSalesReport(){
+  
+async function loadAdminSalesReport(){
   const report = $("adminSalesReport");
   if(!approvedAdmin || !report) return;
 
@@ -265,7 +267,7 @@ async function loadAdminSalesReport(){
 
   const {data,error} = await supabaseClient
     .from("customer_orders")
-    .select("total,status");
+    .select("total,status,created_at");
 
   if(error){
     report.textContent = "Could not load sales report: " + error.message;
@@ -276,6 +278,9 @@ async function loadAdminSalesReport(){
   const valid = orders.filter(o => o.status !== "cancelled");
   const delivered = orders.filter(o => o.status === "delivered");
 
+  const now = new Date();
+  const today = now.toLocaleDateString("en-CA");
+
   const orderValue = valid.reduce(
     (sum,o) => sum + Number(o.total || 0), 0
   );
@@ -284,23 +289,29 @@ async function loadAdminSalesReport(){
     (sum,o) => sum + Number(o.total || 0), 0
   );
 
+  const todaySales = delivered
+    .filter(o => new Date(o.created_at).toLocaleDateString("en-CA") === today)
+    .reduce((sum,o) => sum + Number(o.total || 0), 0);
+
+  const monthlySales = delivered
+    .filter(o => {
+      const d = new Date(o.created_at);
+      return d.getFullYear() === now.getFullYear() &&
+        d.getMonth() === now.getMonth();
+    })
+    .reduce((sum,o) => sum + Number(o.total || 0), 0);
+
   const pending = orders.filter(
     o => o.status === "pending"
   ).length;
 
   report.innerHTML = `
-    <div class="admin-product-row">
-      <strong>Total Orders: ${orders.length}</strong>
-    </div>
-    <div class="admin-product-row">
-      <strong>Pending Orders: ${pending}</strong>
-    </div>
-    <div class="admin-product-row">
-      <strong>Total Order Value: ₹${orderValue.toFixed(2)}</strong>
-    </div>
-    <div class="admin-product-row">
-      <strong>Delivered Sales: ₹${deliveredSales.toFixed(2)}</strong>
-    </div>
+    <div class="admin-product-row"><strong>Total Orders: ${orders.length}</strong></div>
+    <div class="admin-product-row"><strong>Pending Orders: ${pending}</strong></div>
+    <div class="admin-product-row"><strong>Total Order Value: ₹${orderValue.toFixed(2)}</strong></div>
+    <div class="admin-product-row"><strong>Delivered Sales: ₹${deliveredSales.toFixed(2)}</strong></div>
+    <div class="admin-product-row"><strong>Today's Delivered Sales: ₹${todaySales.toFixed(2)}</strong></div>
+    <div class="admin-product-row"><strong>This Month's Delivered Sales: ₹${monthlySales.toFixed(2)}</strong></div>
   `;
 }
 async function loadAdminProducts(){
