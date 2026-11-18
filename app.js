@@ -245,9 +245,9 @@ async function loadAdminOrders(){
         "\nStatus: " + order.status;
 
       window.open(
-        "https://wa.me/?text=" + encodeURIComponent(message),
-        "_blank"
-      );
+  "https://wa.me/918134980118?text=" + encodeURIComponent(message),
+  "_blank"
+);
     });
     details.appendChild(whatsappBtn);
     details.append(heading,phone,address,itemText,total,statusLabel);
