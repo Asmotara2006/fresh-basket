@@ -258,8 +258,6 @@ async function loadAdminOrders(){
 }
 async function loadAdminSalesReport(){
   const report = $("adminSalesReport");
-async function loadAdminSalesReport(){
-  const report = $("adminSalesReport");
   if(!approvedAdmin || !report) return;
 
   report.textContent = "Loading sales report...";
