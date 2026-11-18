@@ -12,6 +12,7 @@
   <button id="langBtn" class="outline">অসমীয়া</button>
   <button id="customerAuthBtn" class="outline" type="button">Sign In / Sign Up</button>
   <button id="myOrdersBtn" class="outline" type="button">My Orders</button>
+  <button id="myProfileBtn" class="outline" type="button" hidden>My Profile</button>
   <button id="adminBtn" class="outline" type="button">Admin</button>
   <button id="cartBtn" class="cart-button">🛒 <span id="cartLabel">Cart</span> <b id="cartCount">0</b></button>
 </div> 
@@ -98,6 +99,21 @@
         <button id="myOrdersClose" class="close" type="button" aria-label="Close">×</button>
       </div>
       <div id="myOrdersList" aria-live="polite">Please sign in to view your orders.</div>
+    </section>
+  </div>
+  <div class="admin-overlay" id="myProfileOverlay" hidden>
+    <section class="admin-panel" role="dialog" aria-modal="true" aria-labelledby="myProfileHeading">
+      <div class="panel-head">
+        <h2 id="myProfileHeading">My Profile</h2>
+        <button id="myProfileClose" class="close" type="button" aria-label="Close">×</button>
+      </div>
+      <p>Account email</p>
+      <p id="myProfileEmail"></p>
+      <label>Customer name
+        <input id="myProfileName" type="text" maxlength="70" autocomplete="name">
+      </label>
+      <button id="myProfileSave" class="checkout" type="button">Save Profile</button>
+      <p id="myProfileMessage" role="status"></p>
     </section>
   </div>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
