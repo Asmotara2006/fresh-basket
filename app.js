@@ -409,11 +409,28 @@ $("productAdminForm").addEventListener("submit",async e=>{
 
 let customerAuthMode = "signup";
 
-function updateCustomerAuthButton(session) {
+async function updateCustomerAuthButton(session) {
   const btn = $("customerAuthBtn");
   if (btn) {
     btn.textContent = session ? "Sign Out" : "Sign In / Sign Up";
   }
+
+  const adminBtn = $("adminBtn");
+  if (!adminBtn) return;
+
+  if (!session) {
+    adminBtn.hidden = false;
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", session.user.id)
+    .maybeSingle();
+
+  // Keep Admin visible only for an approved admin account.
+  adminBtn.hidden = !!error || !data;
 }
 
 $("customerAuthBtn").addEventListener("click", async () => {
