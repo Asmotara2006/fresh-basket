@@ -256,9 +256,8 @@ async function loadAdminOrders(){
     list.appendChild(card);
   });
 }
-
 async function loadAdminSalesReport(){
-  
+  const report = $("adminSalesReport");
 async function loadAdminSalesReport(){
   const report = $("adminSalesReport");
   if(!approvedAdmin || !report) return;
