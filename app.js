@@ -404,3 +404,106 @@ $("productAdminForm").addEventListener("submit",async e=>{
   await loadProductsFromSupabase();
   await loadAdminProducts();
 });
+
+let customerAuthMode = "signup";
+
+function updateCustomerAuthButton(session) {
+  const btn = $("customerAuthBtn");
+  if (btn) {
+    btn.textContent = session ? "Sign Out" : "Sign In / Sign Up";
+  }
+}
+
+$("customerAuthBtn").addEventListener("click", async () => {
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (data.session) {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    updateCustomerAuthButton(null);
+    alert("You have signed out.");
+  } else {
+    $("customerAuthOverlay").hidden = false;
+  }
+});
+
+$("customerAuthClose").addEventListener("click", () => {
+  $("customerAuthOverlay").hidden = true;
+});
+
+$("customerAuthSwitch").addEventListener("click", () => {
+  customerAuthMode =
+    customerAuthMode === "signup" ? "signin" : "signup";
+
+  $("customerAuthTitle").textContent =
+    customerAuthMode === "signup" ? "Sign Up" : "Sign In";
+
+  $("customerAuthSubmit").textContent =
+    customerAuthMode === "signup" ? "Sign Up" : "Sign In";
+
+  $("customerAuthSwitch").textContent =
+    customerAuthMode === "signup"
+      ? "Already have an account? Sign In"
+      : "New customer? Sign Up";
+
+  $("customerAuthName").parentElement.hidden =
+    customerAuthMode === "signin";
+
+  $("customerAuthMessage").textContent = "";
+});
+
+$("customerAuthSubmit").addEventListener("click", async () => {
+  const name = $("customerAuthName").value.trim();
+  const email = $("customerAuthEmail").value.trim();
+  const password = $("customerAuthPassword").value;
+  const message = $("customerAuthMessage");
+
+  if (!email || !password || (customerAuthMode === "signup" && !name)) {
+    message.textContent = "Please fill in all required fields.";
+    return;
+  }
+
+  message.textContent = "Please wait...";
+
+  let result;
+
+  if (customerAuthMode === "signup") {
+    result = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name }
+      }
+    });
+  } else {
+    result = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+  }
+
+  if (result.error) {
+    message.textContent = result.error.message;
+    return;
+  }
+
+  if (customerAuthMode === "signup" && !result.data.session) {
+    message.textContent = "Account created. Please check your email to confirm your account.";
+    return;
+  }
+
+  message.textContent = "Login successful!";
+  $("customerAuthOverlay").hidden = true;
+  updateCustomerAuthButton(result.data.session);
+});
+
+supabaseClient.auth.getSession().then(({ data }) => {
+  updateCustomerAuthButton(data.session);
+});
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  updateCustomerAuthButton(session);
+});
