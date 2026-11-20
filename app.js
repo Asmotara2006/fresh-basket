@@ -36,7 +36,19 @@ function renderProducts(){
 function cartCount(){return Object.values(cart).reduce((a,b)=>a+b,0)}
 function renderCart(){const entries=products.filter(p=>cart[p.id]);$("cartCount").textContent=cartCount();$("cartItems").innerHTML=entries.length?entries.map(p=>'<div class="cart-row"><span class="cart-emoji">'+p.emoji+'</span><div class="cart-row-info"><strong>'+(lang==="en"?p.name:p.as)+'</strong><small>'+fmt(p.price)+' × '+cart[p.id]+'</small></div><div class="qty"><button data-minus="'+p.id+'">−</button><b>'+cart[p.id]+'</b><button data-plus="'+p.id+'">+</button></div></div>').join(""):'<p class="empty">'+t().empty+'</p>';const total=entries.reduce((s,p)=>s+p.price*cart[p.id],0);$("cartTotal").textContent=fmt(total);document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{const id=+b.dataset.minus;cart[id]--;if(cart[id]<=0)delete cart[id];renderCart()});document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{const id=+b.dataset.plus;const product=products.find(p=>p.id===id);if(!product||cart[id]>=Number(product.stock??0))return;cart[id]++;renderCart()})}
 $("langBtn").onclick=()=>{lang=lang==="en"?"as":"en";renderText()};
-$("cartBtn").onclick=()=>{$("overlay").hidden=false;renderCart()};
+
+$("cartBtn").onclick = async () => {
+  $("overlay").hidden = false;
+  renderCart();
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if (user) {
+    $("customerName").value = user.user_metadata?.full_name || "";
+    $("customerPhone").value = user.user_metadata?.mobile || "";
+    $("customerAddress").value = user.user_metadata?.delivery_address || "";
+  }
+};
 $("closeCart").onclick=()=>{$("overlay").hidden=true};
 $("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))$("overlay").hidden=true});
 $("orderForm").addEventListener("submit",async e=>{
