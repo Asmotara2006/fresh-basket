@@ -109,9 +109,19 @@
       </div>
       <p>Account email</p>
       <p id="myProfileEmail"></p>
-      <label>Customer name
-        <input id="myProfileName" type="text" maxlength="70" autocomplete="name">
-      </label>
+     <label>Customer name
+  <input id="myProfileName" type="text" maxlength="70" autocomplete="name">
+</label>
+
+<label>Mobile Number
+  <input id="profileMobile" type="tel" maxlength="15" autocomplete="tel">
+</label>
+
+<label>Delivery Address
+  <textarea id="profileAddress" maxlength="300"
+    autocomplete="street-address"
+    placeholder="Enter full delivery address"></textarea>
+</label>
       <button id="myProfileSave" class="checkout" type="button">Save Profile</button>
       <p id="myProfileMessage" role="status"></p>
     </section>
