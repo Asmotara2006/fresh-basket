@@ -268,11 +268,12 @@ async function loadAdminOrders(){
     
 const customerWhatsappBtn = document.createElement("button");
 customerWhatsappBtn.type = "button";
+
 customerWhatsappBtn.textContent = "Notify Customer on WhatsApp";
 
 customerWhatsappBtn.addEventListener("click", () => {
-  if (order.status !== "confirmed") {
-    alert("First confirm this order.");
+  if (!["confirmed", "delivered"].includes(order.status)) {
+    alert("Please confirm or mark the order as delivered first.");
     return;
   }
 
@@ -284,16 +285,25 @@ customerWhatsappBtn.addEventListener("click", () => {
     return;
   }
 
-  const message =
-    "Hello " + (order.customer_name || "Customer") +
-    ", your Fresh Basket order #" + order.id +
-    " has been confirmed. Thank you for shopping with us!";
+  let message;
+
+  if (order.status === "confirmed") {
+    message = "Hello " + (order.customer_name || "Customer") +
+      ", your Fresh Basket order #" + order.id +
+      " has been confirmed. Thank you!";
+  } else {
+    message = "Hello " + (order.customer_name || "Customer") +
+      ", your Fresh Basket order #" + order.id +
+      " has been successfully delivered. Thank you for shopping with Fresh Basket!";
+  }
 
   window.open(
     "https://wa.me/" + phone + "?text=" + encodeURIComponent(message),
     "_blank"
   );
 });
+
+
 
 details.appendChild(customerWhatsappBtn);
 
