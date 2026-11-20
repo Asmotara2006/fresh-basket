@@ -617,6 +617,8 @@ $("myProfileBtn").addEventListener("click", async () => {
   }
   $("myProfileEmail").textContent = user.email || "";
   $("myProfileName").value = user.user_metadata?.full_name || "";
+  $("profileMobile").value = user.user_metadata?.mobile || "";
+$("profileAddress").value = user.user_metadata?.delivery_address || "";
   $("myProfileMessage").textContent = "";
   $("myProfileOverlay").hidden = false;
 });
@@ -629,20 +631,37 @@ $("myProfileOverlay").addEventListener("click", event => {
   if (event.target === $("myProfileOverlay")) $("myProfileOverlay").hidden = true;
 });
 
+
 $("myProfileSave").addEventListener("click", async () => {
   const name = $("myProfileName").value.trim();
+  const mobile = $("profileMobile").value.trim();
+  const address = $("profileAddress").value.trim();
   const message = $("myProfileMessage");
+
   if (!name) {
     message.textContent = "Please enter your name.";
     return;
   }
+
+  if (!mobile || !address) {
+    message.textContent = "Please enter mobile number and delivery address.";
+    return;
+  }
+
   message.textContent = "Saving...";
+
   const { error } = await supabaseClient.auth.updateUser({
-    data: { full_name: name }
+    data: {
+      full_name: name,
+      mobile: mobile,
+      delivery_address: address
+    }
   });
+
   if (error) {
     message.textContent = "Could not save profile: " + error.message;
     return;
   }
+
   message.textContent = "Profile updated successfully.";
 });
