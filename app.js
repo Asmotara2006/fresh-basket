@@ -265,6 +265,38 @@ async function loadAdminOrders(){
 );
     });
     details.appendChild(whatsappBtn);
+    
+const customerWhatsappBtn = document.createElement("button");
+customerWhatsappBtn.type = "button";
+customerWhatsappBtn.textContent = "Notify Customer on WhatsApp";
+
+customerWhatsappBtn.addEventListener("click", () => {
+  if (order.status !== "confirmed") {
+    alert("First confirm this order.");
+    return;
+  }
+
+  let phone = (order.customer_phone || "").replace(/\D/g, "");
+  if (phone.length === 10) phone = "91" + phone;
+
+  if (!phone) {
+    alert("Customer phone number is missing.");
+    return;
+  }
+
+  const message =
+    "Hello " + (order.customer_name || "Customer") +
+    ", your Fresh Basket order #" + order.id +
+    " has been confirmed. Thank you for shopping with us!";
+
+  window.open(
+    "https://wa.me/" + phone + "?text=" + encodeURIComponent(message),
+    "_blank"
+  );
+});
+
+details.appendChild(customerWhatsappBtn);
+
     details.append(heading,phone,address,itemText,total,statusLabel);
     card.appendChild(details);
     list.appendChild(card);
