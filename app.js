@@ -687,7 +687,8 @@ let myOrdersRefreshTimer = null;
 $("myOrdersBtn").addEventListener("click", async () => {
   $("myOrdersOverlay").hidden = false;
 
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  const { data: { session } } =
+    await supabaseClient.auth.getSession();
 
   if (!session) {
     $("myOrdersList").textContent =
@@ -704,14 +705,6 @@ $("myOrdersBtn").addEventListener("click", async () => {
       loadMyOrders();
     }
   }, 10000);
-});
-  $("myOrdersOverlay").hidden = false;
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (!session) {
-    $("myOrdersList").textContent = "Please sign in first. Close this panel and use Sign In / Sign Up.";
-    return;
-  }
-  await loadMyOrders();
 });
 
 $("myOrdersClose").addEventListener("click", () => {
