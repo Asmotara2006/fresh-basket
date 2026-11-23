@@ -682,7 +682,29 @@ async function loadMyOrders() {
   });
 }
 
+let myOrdersRefreshTimer = null;
+
 $("myOrdersBtn").addEventListener("click", async () => {
+  $("myOrdersOverlay").hidden = false;
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    $("myOrdersList").textContent =
+      "Please sign in first. Close this panel and use Sign In / Sign Up.";
+    return;
+  }
+
+  await loadMyOrders();
+
+  clearInterval(myOrdersRefreshTimer);
+
+  myOrdersRefreshTimer = setInterval(() => {
+    if (!$("myOrdersOverlay").hidden) {
+      loadMyOrders();
+    }
+  }, 10000);
+});
   $("myOrdersOverlay").hidden = false;
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
@@ -694,10 +716,14 @@ $("myOrdersBtn").addEventListener("click", async () => {
 
 $("myOrdersClose").addEventListener("click", () => {
   $("myOrdersOverlay").hidden = true;
+  clearInterval(myOrdersRefreshTimer);
 });
 
 $("myOrdersOverlay").addEventListener("click", event => {
-  if (event.target === $("myOrdersOverlay")) $("myOrdersOverlay").hidden = true;
+  if (event.target === $("myOrdersOverlay")) {
+    $("myOrdersOverlay").hidden = true;
+    clearInterval(myOrdersRefreshTimer);
+  }
 });
 
 $("myProfileBtn").addEventListener("click", async () => {
