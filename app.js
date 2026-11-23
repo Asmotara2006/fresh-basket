@@ -17,7 +17,8 @@ const $=id=>document.getElementById(id),t=()=>copy[lang],fmt=n=>"₹"+n;
 function renderText(){const c=t();$("tagline").textContent=c.tag;$("heroEyebrow").textContent=c.eyebrow;$("heroTitle").innerHTML=c.title;$("heroText").textContent=c.hero;$("shopNow").innerHTML=c.shop+" <span>→</span>";$("benefit1").textContent=c.benefits[0];$("benefit2").textContent=c.benefits[1];$("benefit3").textContent=c.benefits[2];$("browse").textContent=c.browse;$("productTitle").textContent=c.products;$("deliveryEyebrow").textContent=c.deliveryEyebrow;$("deliveryTitle").textContent=c.deliveryTitle;$("deliveryText").textContent=c.deliveryText;$("footerText").textContent=c.footer;$("langBtn").textContent=lang==="en"?"অসমীয়া":"English";$("cartLabel").textContent=c.cart;$("cartTitle").textContent=c.yourCart;$("totalLabel").textContent=c.total;$("checkoutTitle").textContent=c.checkout;$("nameLabel").textContent=c.name;$("phoneLabel").textContent=c.phone;$("addressLabel").textContent=c.address;$("placeOrder").textContent=c.place;$("demoNotice").textContent=c.notice;renderFilters();renderProducts();renderCart()}
 function renderFilters(){const cats=t().categories;const keys=["All","Vegetables","Fruits","Greens","Groceries"];$("filters").innerHTML=keys.map((k,i)=>'<button class="filter '+(active===k?'active':'')+'" data-cat="'+k+'">'+cats[i]+'</button>').join("");document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{active=b.dataset.cat;renderFilters();renderProducts()})}
 function renderProducts(){
-  const list=products.filter(p=>active==="All"||p.category===active);
+  const search=($("productSearch")?.value||"").trim().toLowerCase();
+const list=products.filter(p=>(active==="All"||p.category===active)&&((p.name||"").toLowerCase().includes(search)||(p.as||"").toLowerCase().includes(search)));
   $("productCount").textContent=list.length+" "+t().items;
   $("productGrid").innerHTML=list.map(p=>{
     const outOfStock=Number(p.stock??0)<=0;
