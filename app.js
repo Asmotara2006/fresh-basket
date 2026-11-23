@@ -376,7 +376,7 @@ async function loadAdminProducts(){
   (data||[]).forEach(p=>{
     const row=document.createElement("div");
     row.className="admin-product-row";
-    row.innerHTML='<div><strong>'+safeText(p.name_en)+'</strong><small>'+safeText(p.category)+' · ₹'+safeText(p.price)+' · Stock: '+safeText(p.stock)+'</small></div><div class="admin-row-actions"><button type="button" data-edit="'+p.id+'">Edit</button><button type="button" class="delete-product" data-delete="'+p.id+'">Delete</button></div>';
+   row.innerHTML='<div><strong>'+safeText(p.name_en)+'</strong><small>'+safeText(p.category)+' · ₹'+safeText(p.price)+' · Stock: '+safeText(p.stock)+'</small>'+(Number(p.stock)<=5?'<small style="color:#c0392b;font-weight:bold">LOW STOCK ALERT</small>':'')+'</div><div class="admin-row-actions"><button type="button" data-edit="'+p.id+'">Edit</button><button type="button" class="delete-product" data-delete="'+p.id+'">Delete</button></div>';
     list.appendChild(row);
   });
   list.querySelectorAll("[data-edit]").forEach(btn=>btn.addEventListener("click",()=>{
