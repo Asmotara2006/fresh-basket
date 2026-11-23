@@ -585,10 +585,13 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
   updateCustomerAuthButton(session);
 });
 
+
 async function loadMyOrders() {
   const list = $("myOrdersList");
   list.textContent = "Loading your orders...";
-  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+  const { data: { user }, error: userError } =
+    await supabaseClient.auth.getUser();
 
   if (userError || !user) {
     list.textContent = "Please sign in to view your orders.";
@@ -607,10 +610,14 @@ async function loadMyOrders() {
   }
 
   list.innerHTML = "";
+
   if (!data || data.length === 0) {
     list.textContent = "You have no orders yet.";
     return;
   }
+
+  const steps = ["pending", "confirmed", "preparing", "delivered"];
+  const labels = ["Pending", "Confirmed", "Preparing", "Delivered"];
 
   data.forEach(order => {
     const card = document.createElement("article");
@@ -621,13 +628,19 @@ async function loadMyOrders() {
 
     const itemLine = document.createElement("p");
     itemLine.textContent = Array.isArray(order.items)
-      ? order.items.map(item => (item.name_en || item.name_as || "Product") + " × " + item.quantity).join(", ")
+      ? order.items.map(item =>
+          (item.name_en || item.name_as || "Product") +
+          " × " + item.quantity
+        ).join(", ")
       : "Items not available";
 
     const total = document.createElement("p");
-    total.textContent = "Total: ₹" + Number(order.total || 0).toFixed(2);
+    total.textContent =
+      "Total: ₹" + Number(order.total || 0).toFixed(2);
 
     const status = document.createElement("p");
+    const currentStatus = order.status || "pending";
+
     const statusNames = {
       pending: "Pending",
       confirmed: "Confirmed",
@@ -635,12 +648,36 @@ async function loadMyOrders() {
       delivered: "Delivered",
       cancelled: "Cancelled"
     };
-    status.textContent = "Status: " + (statusNames[order.status] || order.status || "Pending");
+
+    status.textContent =
+      "Status: " + (statusNames[currentStatus] || currentStatus);
+
+    const tracker = document.createElement("div");
+    tracker.style.margin = "12px 0";
+    tracker.style.padding = "10px";
+    tracker.style.border = "1px solid #ddd";
+    tracker.style.borderRadius = "8px";
+
+    if (currentStatus === "cancelled") {
+      tracker.textContent = "Order Cancelled";
+      tracker.style.color = "#c0392b";
+    } else {
+      const currentStep = steps.indexOf(currentStatus);
+
+      const progress = document.createElement("p");
+      progress.textContent = labels.map((label, index) =>
+        (index <= currentStep ? "✓ " : "○ ") + label
+      ).join("  →  ");
+
+      tracker.appendChild(progress);
+    }
 
     const date = document.createElement("small");
-    date.textContent = order.created_at ? new Date(order.created_at).toLocaleString() : "";
+    date.textContent = order.created_at
+      ? new Date(order.created_at).toLocaleString()
+      : "";
 
-    card.append(heading, itemLine, total, status, date);
+    card.append(heading, itemLine, total, status, tracker, date);
     list.appendChild(card);
   });
 }
