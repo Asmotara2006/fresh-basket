@@ -31,3 +31,22 @@
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
+.location-box {
+  margin: 12px 0 18px;
+  text-align: left;
+}
+
+#getLocationBtn {
+  display: inline-block;
+  width: auto;
+  padding: 9px 16px;
+  margin: 0;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+#locationStatus {
+  margin: 7px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
