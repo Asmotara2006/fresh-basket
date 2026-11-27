@@ -30,7 +30,22 @@
     <section class="delivery-note"><div><span class="eyebrow" id="deliveryEyebrow">FROM OUR MARKET TO YOUR HOME</span><h2 id="deliveryTitle">A fresher day starts here.</h2><p id="deliveryText">Order your daily essentials with convenient Cash on Delivery.</p></div><div class="delivery-emoji">🧺</div></section>
   </main>
   <footer><a class="brand footer-brand" href="#">🥬 Fresh<span class="brand-green">Basket</span></a><p id="footerText">Fresh groceries for Dhubri, Assam.</p><small>© <span id="year"></span> Fresh Basket</small></footer>
-  <div class="overlay" id="overlay" hidden><section class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle"><div class="panel-head"><h2 id="cartTitle">Your cart</h2><button id="closeCart" class="close" aria-label="Close">×</button></div><div id="cartItems"></div><div class="cart-total"><span id="totalLabel">Total</span><strong id="cartTotal">₹0</strong></div><form id="orderForm"><h3 id="checkoutTitle">Delivery details</h3><label><span id="nameLabel">Your name</span><input id="customerName" required maxlength="70" placeholder="Name"></label><label><span id="phoneLabel">Phone number</span><input id="customerPhone" required inputmode="tel" pattern="[0-9 +()-]{8,18}" placeholder="Phone"></label><label><span id="addressLabel">Delivery address</span><textarea id="customerAddress" required maxlength="300" placeholder="Your address"></textarea></label><button class="checkout" type="submit" id="placeOrder">Place COD order</button><p class="fineprint" id="demoNotice">Demo preview: orders are not yet sent to a store owner.</p></form></section></div>
+  <div class="overlay" id="overlay" hidden><section class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle"><div class="panel-head"><h2 id="cartTitle">Your cart</h2><button id="closeCart" class="close" aria-label="Close">×</button></div><div id="cartItems"></div><div class="cart-total">
+  <span id="totalLabel">Items Total</span>
+  <strong id="cartTotal">₹0</strong>
+</div>
+<div class="cart-total">
+  <span>Delivery Charge</span>
+  <strong id="deliveryCharge">₹0</strong>
+</div>
+<div class="cart-total">
+  <span>Grand Total</span>
+  <strong id="grandTotal">₹0</strong>
+  <button type="button" id="getLocationBtn">
+  📍 Use My Location
+</button>
+<p id="locationStatus">Please share your delivery location.</p>
+</div><form id="orderForm"><h3 id="checkoutTitle">Delivery details</h3><label><span id="nameLabel">Your name</span><input id="customerName" required maxlength="70" placeholder="Name"></label><label><span id="phoneLabel">Phone number</span><input id="customerPhone" required inputmode="tel" pattern="[0-9 +()-]{8,18}" placeholder="Phone"></label><label><span id="addressLabel">Delivery address</span><textarea id="customerAddress" required maxlength="300" placeholder="Your address"></textarea></label><button class="checkout" type="submit" id="placeOrder">Place COD order</button><p class="fineprint" id="demoNotice">Demo preview: orders are not yet sent to a store owner.</p></form></section></div>
   <div class="admin-overlay" id="adminOverlay" hidden>
     <section class="admin-panel" role="dialog" aria-modal="true" aria-labelledby="adminHeading">
       <div class="panel-head"><h2 id="adminHeading">Fresh Basket Admin</h2><button id="adminClose" class="close" type="button" aria-label="Close">×</button></div>
