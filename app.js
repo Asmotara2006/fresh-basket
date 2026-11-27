@@ -87,62 +87,7 @@ $("getLocationBtn").addEventListener("click", () => {
     }
   );
 });
-let customerDistanceKm = null;
 
-const STORE_LAT = 26.155338;
-const STORE_LON = 90.052190;
-
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const rad = x => x * Math.PI / 180;
-
-  const dLat = rad(lat2 - lat1);
-  const dLon = rad(lon2 - lon1);
-
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(rad(lat1)) *
-    Math.cos(rad(lat2)) *
-    Math.sin(dLon / 2) ** 2;
-
-  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-const getLocationBtn = $("getLocationBtn");
-
-if (getLocationBtn) {
-  getLocationBtn.addEventListener("click", () => {
-    const status = $("locationStatus");
-
-    if (!navigator.geolocation) {
-      status.textContent = "Location is not supported.";
-      return;
-    }
-
-    status.textContent = "Getting your location...";
-
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        customerDistanceKm = calculateDistance(
-          STORE_LAT,
-          STORE_LON,
-          position.coords.latitude,
-          position.coords.longitude
-        );
-
-        status.textContent =
-          "Distance from store: " +
-          customerDistanceKm.toFixed(2) + " km";
-
-        renderCart();
-      },
-      () => {
-        status.textContent =
-          "Location permission denied. Please allow location access.";
-      }
-    );
-  });
-}
 function renderCart() {
   const entries = products.filter(p => cart[p.id]);
   $("cartCount").textContent = cartCount();
