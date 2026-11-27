@@ -35,6 +35,58 @@ const list=products.filter(p=>(active==="All"||p.category===active)&&((p.name||"
   });
 }
 function cartCount(){return Object.values(cart).reduce((a,b)=>a+b,0)}
+let customerDistanceKm = null;
+
+const STORE_LAT = 26.155338;
+const STORE_LON = 90.052190;
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const rad = x => x * Math.PI / 180;
+
+  const dLat = rad(lat2 - lat1);
+  const dLon = rad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(rad(lat1)) *
+    Math.cos(rad(lat2)) *
+    Math.sin(dLon / 2) ** 2;
+
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+$("getLocationBtn").addEventListener("click", () => {
+  const status = $("locationStatus");
+
+  if (!navigator.geolocation) {
+    status.textContent = "Location is not supported.";
+    return;
+  }
+
+  status.textContent = "Getting your location...";
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      customerDistanceKm = calculateDistance(
+        STORE_LAT,
+        STORE_LON,
+        position.coords.latitude,
+        position.coords.longitude
+      );
+
+      status.textContent =
+        "Distance from store: " +
+        customerDistanceKm.toFixed(2) + " km";
+
+      renderCart();
+    },
+    () => {
+      status.textContent =
+        "Location permission denied. Please allow location access.";
+    }
+  );
+});
 function renderCart(){const entries=products.filter(p=>cart[p.id]);$("cartCount").textContent=cartCount();$("cartItems").innerHTML=entries.length?entries.map(p=>'<div class="cart-row"><span class="cart-emoji">'+p.emoji+'</span><div class="cart-row-info"><strong>'+(lang==="en"?p.name:p.as)+'</strong><small>'+fmt(p.price)+' × '+cart[p.id]+'</small></div><div class="qty"><button data-minus="'+p.id+'">−</button><b>'+cart[p.id]+'</b><button data-plus="'+p.id+'">+</button></div></div>').join(""):'<p class="empty">'+t().empty+'</p>';const total=entries.reduce((s,p)=>s+p.price*cart[p.id],0);$("cartTotal").textContent=fmt(total);document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{const id=+b.dataset.minus;cart[id]--;if(cart[id]<=0)delete cart[id];renderCart()});document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{const id=+b.dataset.plus;const product=products.find(p=>p.id===id);if(!product||cart[id]>=Number(product.stock??0))return;cart[id]++;renderCart()})}
 $("langBtn").onclick=()=>{lang=lang==="en"?"as":"en";renderText()};
 
